@@ -7,7 +7,8 @@ from models import db,Author, Publisher, Book, Member, Loan
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Peanuts12345@localhost/library_db'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Peanuts12345@localhost/library_db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///library.db'
 app.config['SECRET_KEY'] = 'SUPER SECRET KEY'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -319,11 +320,30 @@ def add_members():
         return render_template("add_member.html", form=form)
 
 
+def delete_member_loans(member_id):
+    """This function deletes all information about loans of the deleted member."""
+    try:
+        loans_to_delete = Loan.query.filter_by(member_id=member_id).all()
+        for loan in loans_to_delete:
+            db.session.delete(loan)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error while deleting loans: {e}","warning")
+        return False
+    return True
+
+
 @app.route("/delete_member/<int:member_id>",methods=["POST"])
 def delete_member(member_id):
     member_to_delete = Member.query.get(member_id)
 
     if member_to_delete:
+
+        if not delete_member_loans(member_id):
+            return redirect(url_for("members"))
+
+
         db.session.delete(member_to_delete)
         db.session.commit()
         flash(f"Member deleted successfully!",'success')
@@ -697,5 +717,5 @@ def seed_database():
 
 
 if __name__ == "__main__":
-    # seed_database()
+    seed_database()
     app.run(debug=True)
