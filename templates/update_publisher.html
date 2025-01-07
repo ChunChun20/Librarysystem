@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %} Update Author Page {% endblock %}
+{% block content %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="alert alert-{{ messages[0][0] }} alert-dismissible fade show" role="alert">
+                        {{ messages[0][1] }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+
+<form method="post">
+        {{ form.hidden_tag() }}
+
+        <div class="form-field-container">
+            <label  for="name">{{ form.name.label }}</label>
+            {{ form.name() }}
+        </div>
+
+         <div class="form-field-container">
+            <label for="address">{{ form.address.label }}</label>
+           {{ form.address() }}
+        </div>
+
+      <div class="submit-container">
+            <input type="submit" value="Update Publisher">
+        </div>
+    </form>
+
+{% endblock %}

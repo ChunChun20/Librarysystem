@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %} User loans page {% endblock %}
+{% block content %}
+<div class="position-relative">
+   {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+            <div class="alert alert-{{ messages[0][0] }} alert-dismissible fade show position-absolute top-0 start-0 end-0 z-3" role="alert" style="margin: 0;"> <!-- Added position absolute and top/left/right styles-->
+                 {{ messages[0][1] }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+      {% endif %}
+   {% endwith %}
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+         <li class="nav-item">
+           <a href="{{ url_for('menu') }}" class="nav-link"><i class="fas fa-bars"></i> Menu</a>
+          </li>
+       </ul>
+       <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+            <a href="/" class="btn btn-danger">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </li>
+      </ul>
+    </div>
+</nav>
+</div>
+
+<h1 align="center">Loans in the library</h1>
+    <table class="mb-4">
+        <thead>
+            <tr>
+                <th>Book</th>
+                <th>Member</th>
+                <th>Loan date</th>
+                <th>Return date</th>
+                <th>Returned</th>
+                <th>Options</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for loan in loans %}
+    <tr>
+        <td><a href="/books?search_query={{ loan.book.title }}">{{ loan.book.title }}</a></td>
+        <td><a href="/members?search_query={{ loan.member.name }}">{{ loan.member.name }}</a></td>
+        <td>{{ loan.loan_date }}</td>
+        <td {% if loan_statuses.get(loan.id) == 'overdue' %} class="overdue" {% endif %}>{{ loan.return_date }}</td>
+        {% if loan.returned %}
+            <td>Yes</td>
+        <td></td>
+        {% else %}
+            <td>No</td>
+            <td>
+            <form action="{{ url_for('return_book',loan_id=loan.id) }}"
+                          method="POST"
+                          style="all:unset;display:inline"
+                    >
+                 <button type="submit" class="btn btn-success">Return</button>
+            </form>
+        </td>
+        {% endif %}
+    </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

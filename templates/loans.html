@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %} User loans {% endblock %}
+{% block content %}
+<div class="position-relative">
+   {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+            <div class="alert alert-{{ messages[0][0] }} alert-dismissible fade show position-absolute top-0 start-0 end-0 z-3" role="alert" style="margin: 0;"> <!-- Added position absolute and top/left/right styles-->
+                 {{ messages[0][1] }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+      {% endif %}
+   {% endwith %}
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+         <li class="nav-item">
+           <a href="{{ url_for('menu') }}" class="nav-link"><i class="fas fa-bars"></i> Menu</a>
+          </li>
+       </ul>
+       <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+            <a href="/" class="btn btn-danger">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </li>
+      </ul>
+    </div>
+</nav>
+</div>
+
+<div class="container mt-4">
+
+<h1 align="center">Loans in the library</h1>
+
+<div class="d-flex justify-content-end mb-2">
+    <div class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle"
+                type="button"
+                id="filterDropdown"
+                data-bs-toggle="dropdown"
+                aria-expanded="false">
+            Filter loans
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end"
+            aria-labelledby="filterDropdown">
+            <li><a class="dropdown-item" href="{{ url_for('loans', filter='all') }}">Show All</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('loans', filter='returned') }}">Show Returned</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('loans', filter='not_returned') }}">Show Not Returned</a></li>
+        </ul>
+    </div>
+</div>
+
+
+    <table class="mb-4">
+        <thead>
+            <tr>
+                <th>Book</th>
+                <th>Member</th>
+                <th>Loan date</th>
+                <th>Return date</th>
+                <th>Returned</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for loan in loans %}
+    <tr>
+
+        <td><a href="/books?search_query={{ loan.book.title }}">{{ loan.book.title }}</a></td>
+        <td><a href="/members?search_query={{ loan.member.name }}">{{ loan.member.name }}</a></td>
+        <td>{{ loan.loan_date }}</td>
+        <td {% if loan_statuses.get(loan.id) == 'overdue' %} class="overdue" {% endif %}>{{ loan.return_date }}</td>
+        {% if loan.returned %}
+            <td>Yes</td>
+        {% else %}
+            <td>No</td>
+        {% endif %}
+    </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+
+    </div>
+{% endblock %}

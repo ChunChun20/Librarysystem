@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %} Update Author Page {% endblock %}
+{% block content %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="alert alert-{{ messages[0][0] }} alert-dismissible fade show" role="alert">
+                        {{ messages[0][1] }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+
+<form method="post">
+        {{ form.hidden_tag() }}
+
+        <div class="form-field-container">
+            <label  for="title">{{ form.title.label }}</label>
+            {{ form.title() }}
+        </div>
+
+         <div class="form-field-container">
+            <label for="isbn">{{ form.isbn.label }}</label>
+           {{ form.isbn() }}
+        </div>
+
+          <div class="form-field-container">
+             <label for="publication_year">{{ form.publication_year.label }}</label>
+            {{ form.publication_year() }}
+        </div>
+    <div class="form-field-container">
+             <label for="genre">{{ form.genre.label }}</label>
+            {{ form.genre() }}
+        </div>
+
+    <div class="form-field-container">
+             <label for="author">{{ form.author.label }}</label>
+            {{ form.author() }}
+        </div>
+
+    <div class="form-field-container">
+             <label for="publisher">{{ form.publisher.label }}</label>
+            {{ form.publisher() }}
+        </div>
+
+      <div class="submit-container">
+            <input type="submit" value="Update Book">
+        </div>
+    </form>
+
+{% endblock %}
