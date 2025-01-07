@@ -1,10 +1,10 @@
 from datetime import date
 from flask import Flask, render_template, redirect, url_for, flash,request
 from sqlalchemy import desc, func
-
 from forms import AddBookForm, AddAuthorForm, AddMemberForm, AddPublisherForm, UpdateAuthorForm, UpdateMemberForm, \
     UpdatePublisherForm, UpdateBookForm, LoanForm
 from models import db,Author, Publisher, Book, Member, Loan
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Peanuts12345@localhost/library_db'
@@ -54,18 +54,6 @@ def get_filtered_books(search_query,filter_option):
         "filter_by_popularity_desc": "loan_count"
     }
 
-    # if filter_option == 'filter_by_title':
-    #     query = query.order_by(Book.title)
-    # elif filter_option == "filter_by_title_desc":
-    #     query = query.order_by(desc(Book.title))
-    # elif filter_option == "filter_by_year":
-    #     query = query.order_by(Book.publication_year)
-    # elif filter_option == "filter_by_year_desc":
-    #     query = query.order_by(desc(Book.publication_year))
-    # elif filter_option == "filter_by_popularity":
-    #     query = query.order_by(desc("loan_count"))
-    # elif filter_option == "filter_by_popularity_desc":
-    #     query = query.order_by("loan_count")
 
     if filter_option in filter_options:
         query = query.order_by(filter_options[filter_option])
@@ -439,6 +427,10 @@ def delete_publisher(publisher_id):
     publisher_to_delete = Publisher.query.get(publisher_id)
 
     if publisher_to_delete:
+        has_books = Book.query.filter_by(publisher_id=publisher_id).first()
+        if has_books:
+            flash("Cannot delete a publisher that has associated books.", "danger")
+            return redirect(url_for("publishers"))
         db.session.delete(publisher_to_delete)
         db.session.commit()
         flash(f"Publisher deleted successfully!",'success')
@@ -504,6 +496,10 @@ def delete_author(author_id):
     author_to_delete = Author.query.get(author_id)
 
     if author_to_delete:
+        has_books = Book.query.filter_by(author_id=author_id).first()
+        if has_books:
+            flash("Cannot delete an author that has associated books.","danger")
+            return redirect(url_for("authors"))
         db.session.delete(author_to_delete)
         db.session.commit()
         flash(f"Author deleted successfully!",'success')
@@ -573,9 +569,6 @@ def loaned_books(member_id):
     loan_statuses = overdue_loans(loans)
 
     return render_template("user_loans.html", loans=loans,loan_statuses=loan_statuses)
-
-
-
 
 def seed_database():
     with app.app_context():
@@ -701,6 +694,7 @@ def seed_database():
             loan15, loan16, loan17
         ])
         db.session.commit()
+
 
 if __name__ == "__main__":
     # seed_database()
